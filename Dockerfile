@@ -18,5 +18,4 @@ RUN uv pip install --system -e . && \
 EXPOSE 8051
 
 # Command to run the MCP server
-CMD ["uvicorn", "src.crawl4ai_mcp:app", "--host", "0.0.0.0", "--port", "8051"]
-
+CMD ["python", "src/crawl4ai_mcp.py"]
