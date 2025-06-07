@@ -763,14 +763,16 @@ async def perform_rag_query(ctx: Context, query: str, source: str = None, match_
             results = rerank_results(ctx.request_context.lifespan_context.reranking_model, query, results, content_key="content")
         
         # Format the results
-       formatted_result = {
-    "id": result.get("id"),
-    "content": result.get("content"),
-    "metadata": result.get("metadata"),
-    "source_id": result.get("source_id"),
-    "file_title": result.get("file_title"),
-    "similarity": result.get("similarity")
-}
+        formatted_results = []
+        for result in results:
+            formatted_result = {
+                "id": result.get("id"),
+                "content": result.get("content"),
+                "metadata": result.get("metadata"),
+                "source_id": result.get("source_id"),
+                "file_title": result.get("file_title"),
+                "similarity": result.get("similarity")
+            }
             # Include rerank score if available
             if "rerank_score" in result:
                 formatted_result["rerank_score"] = result["rerank_score"]
