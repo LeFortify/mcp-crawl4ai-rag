@@ -624,7 +624,7 @@ async def get_available_sources(ctx: Context) -> str:
         supabase_client = ctx.request_context.lifespan_context.supabase_client
         
         # Query the sources table directly
-        result = supabase_client.from_('sources')\
+        result = supabase_client.from_('gemini_documents')\
             .select('*')\
             .order('source_id')\
             .execute()
@@ -694,7 +694,7 @@ async def perform_rag_query(ctx: Context, query: str, source: str = None, match_
             )
             
             # 2. Get keyword search results using ILIKE
-            keyword_query = supabase_client.from_('crawled_pages')\
+            keyword_query = supabase_client.from_('gemini_documents')\
                 .select('id, url, chunk_number, content, metadata, source_id')\
                 .ilike('content', f'%{query}%')
             
@@ -846,7 +846,7 @@ async def search_code_examples(ctx: Context, query: str, source_id: str = None, 
             )
             
             # 2. Get keyword search results using ILIKE on both content and summary
-            keyword_query = supabase_client.from_('code_examples')\
+            keyword_query = supabase_client.from_('gemini_documents')\
                 .select('id, url, chunk_number, content, summary, metadata, source_id')\
                 .or_(f'content.ilike.%{query}%,summary.ilike.%{query}%')
             
