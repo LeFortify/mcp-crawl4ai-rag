@@ -695,8 +695,9 @@ async def perform_rag_query(ctx: Context, query: str, source: str = None, match_
             
             # 2. Get keyword search results using ILIKE
             keyword_query = supabase_client.from_('gemini_documents')\
-                .select('id, url, chunk_number, content, metadata, source_id')\
-                .ilike('content', f'%{query}%')
+    		.select('id, content, metadata, source_id, file_title')\
+    		.ilike('content', f'%{query}%')
+
             
             # Apply source filter if provided
             if source and source.strip():
@@ -762,14 +763,14 @@ async def perform_rag_query(ctx: Context, query: str, source: str = None, match_
             results = rerank_results(ctx.request_context.lifespan_context.reranking_model, query, results, content_key="content")
         
         # Format the results
-        formatted_results = []
-        for result in results:
-            formatted_result = {
-                "url": result.get("url"),
-                "content": result.get("content"),
-                "metadata": result.get("metadata"),
-                "similarity": result.get("similarity")
-            }
+       formatted_result = {
+    "id": result.get("id"),
+    "content": result.get("content"),
+    "metadata": result.get("metadata"),
+    "source_id": result.get("source_id"),
+    "file_title": result.get("file_title"),
+    "similarity": result.get("similarity")
+}
             # Include rerank score if available
             if "rerank_score" in result:
                 formatted_result["rerank_score"] = result["rerank_score"]
