@@ -687,9 +687,6 @@ async def perform_rag_query(ctx: Context, query: str, source: str = None, match_
         # Get the Supabase client from the context
         supabase_client = ctx.request_context.lifespan_context.supabase_client
         
-        # Check if hybrid search is enabled
-        use_hybrid_search = os.getenv("USE_HYBRID_SEARCH", "false") == "true"
-        
         # Prepare filter if source is provided and not empty
         filter_metadata = None
         if source and source.strip():
@@ -719,7 +716,6 @@ async def perform_rag_query(ctx: Context, query: str, source: str = None, match_
             "success": True,
             "query": query,
             "source_filter": source,
-            "search_mode": "hybrid" if use_hybrid_search else "vector",
             "results": formatted_results,
             "count": len(formatted_results)
         }, indent=2)
