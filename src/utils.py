@@ -48,7 +48,7 @@ def create_embeddings_batch(texts: List[str]) -> List[List[float]]:
     for retry in range(max_retries):
         try:
             response = openai.embeddings.create(
-                model="text-embedding-3-small", # Hardcoding embedding model for now, will change this later to be more dynamic
+                model="text-embedding-3-large", # Hardcoding embedding model for now, will change this later to be more dynamic
                 input=texts
             )
             return [item.embedding for item in response.data]
@@ -68,7 +68,7 @@ def create_embeddings_batch(texts: List[str]) -> List[List[float]]:
                 for i, text in enumerate(texts):
                     try:
                         individual_response = openai.embeddings.create(
-                            model="text-embedding-3-small",
+                            model="text-embedding-3-large",
                             input=[text]
                         )
                         embeddings.append(individual_response.data[0].embedding)
