@@ -335,7 +335,7 @@ def search_documents(
     # Create embedding for the query
     query_embedding = create_embedding(query)
     
-    # Execute the search using the match_crawled_pages function
+    # Execute the search using the match_gemini_documents function
     try:
         # Only include filter parameter if filter_metadata is provided and not empty
         params = {
@@ -347,7 +347,7 @@ def search_documents(
         if filter_metadata:
             params['filter'] = filter_metadata  # Pass the dictionary directly, not JSON-encoded
         
-        result = client.rpc('match_crawled_pages', params).execute()
+        result = client.rpc('match_gemini_documents', params).execute()
         
         return result.data
     except Exception as e:
