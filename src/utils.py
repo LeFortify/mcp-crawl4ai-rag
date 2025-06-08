@@ -48,10 +48,12 @@ def create_embeddings_batch(texts: List[str]) -> List[List[float]]:
     for retry in range(max_retries):
         try:
             response = openai.embeddings.create(
-                model="text-embedding-3-large", # Hardcoding embedding model for now, will change this later to be more dynamic
+                model="text-embedding-3-large",
                 input=texts
             )
-            return [item.embedding for item in response.data]
+            embeddings = [item.embedding for item in response.data]
+            print(f"Successfully created {len(embeddings)} embeddings with dimension {len(embeddings[0]) if embeddings else 0}")
+            return embeddings
         except Exception as e:
             if retry < max_retries - 1:
                 print(f"Error creating batch embeddings (attempt {retry + 1}/{max_retries}): {e}")
@@ -71,12 +73,14 @@ def create_embeddings_batch(texts: List[str]) -> List[List[float]]:
                             model="text-embedding-3-large",
                             input=[text]
                         )
-                        embeddings.append(individual_response.data[0].embedding)
+                        embedding = individual_response.data[0].embedding
+                        print(f"Created individual embedding with dimension {len(embedding)}")
+                        embeddings.append(embedding)
                         successful_count += 1
                     except Exception as individual_error:
                         print(f"Failed to create embedding for text {i}: {individual_error}")
                         # Add zero embedding as fallback
-                        embeddings.append([0.0] * 1536)
+                        embeddings.append([0.0] * 3072)
                 
                 print(f"Successfully created {successful_count}/{len(texts)} embeddings individually")
                 return embeddings
@@ -93,11 +97,13 @@ def create_embedding(text: str) -> List[float]:
     """
     try:
         embeddings = create_embeddings_batch([text])
-        return embeddings[0] if embeddings else [0.0] * 1536
+        embedding = embeddings[0] if embeddings else [0.0] * 3072
+        print(f"Created single embedding with dimension {len(embedding)}")
+        return embedding
     except Exception as e:
         print(f"Error creating embedding: {e}")
         # Return empty embedding if there's an error
-        return [0.0] * 1536
+        return [0.0] * 3072
 
 def generate_contextual_embedding(full_document: str, chunk: str) -> Tuple[str, bool]:
     """
@@ -334,6 +340,7 @@ def search_documents(
     """
     # Create embedding for the query
     query_embedding = create_embedding(query)
+    print(f"Query embedding dimension: {len(query_embedding)}")
     
     # Execute the search using the match_gemini_documents function
     try:
@@ -347,8 +354,15 @@ def search_documents(
         if filter_metadata:
             params['filter'] = filter_metadata  # Pass the dictionary directly, not JSON-encoded
         
+        print(f"Executing RPC call to match_gemini_documents with params: {params}")
         result = client.rpc('match_gemini_documents', params).execute()
         
+        if result.data:
+            print(f"Found {len(result.data)} results")
+            print(f"First result similarity: {result.data[0].get('similarity')}")
+        else:
+            print("No results found")
+            
         return result.data
     except Exception as e:
         print(f"Error searching documents: {e}")
